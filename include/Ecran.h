@@ -57,6 +57,8 @@ public:
 private:
     void detecteazaDimensiuni();
     void scrieDirect(const std::string& s); // scrie imediat pe terminal
+    // Returneaza caracterul de fundal cu codul de culoare ANSI potrivit.
+    std::string coloreaza(char c) const;
 
     int nrLinii_ = 24;
     int nrColoane_ = 80;

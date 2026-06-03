@@ -102,13 +102,29 @@ void Ecran::seteazaFundal(const std::vector<std::string>& harta) {
     }
 }
 
+std::string Ecran::coloreaza(char c) const {
+    const char* cod = nullptr;
+    switch (c) {
+        case '|': case '-': cod = "\033[93m"; break; // marcaje rutiere - galben
+        case '*':           cod = "\033[90m"; break; // cladiri / pereti - gri
+        case '=': case ':': cod = "\033[97m"; break; // linii de stop - alb
+        case '.':           cod = "\033[32m"; break; // iarba - verde
+        default: break;
+    }
+    if (cod == nullptr) return std::string(1, c);
+    return std::string(cod) + c + "\033[0m";
+}
+
 void Ecran::deseneazaFundal() {
     buffer_.clear();
     buffer_ += ACASA;
     for (int l = 0; l < static_cast<int>(fundal_.size()) && l < nrLinii_; ++l) {
         // Pozitionam la inceputul liniei (ANSI este 1-based).
         buffer_ += "\033[" + std::to_string(l + 1) + ";1H";
-        buffer_ += fundal_[l].substr(0, nrColoane_);
+        const std::string& linie = fundal_[l];
+        for (int c = 0; c < nrColoane_ && c < static_cast<int>(linie.size()); ++c) {
+            buffer_ += coloreaza(linie[c]);
+        }
     }
     actualizeaza();
 }
@@ -139,7 +155,9 @@ void Ecran::scrieLa(int linie, int coloana, const std::string& text) {
 }
 
 void Ecran::stergeLa(int linie, int coloana) {
-    scrieLa(linie, coloana, fundalLa(linie, coloana));
+    if (!inInterior(linie, coloana)) return; // ignoram celulele din afara ecranului
+    // Restauram caracterul de fundal, pastrandu-i culoarea.
+    scrieLa(linie, coloana, coloreaza(fundalLa(linie, coloana)));
 }
 
 void Ecran::actualizeaza() {

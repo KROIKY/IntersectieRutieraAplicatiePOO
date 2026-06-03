@@ -83,6 +83,18 @@ void Harta::construieste() {
         pune(geo_.vColStanga - 3, r, ':'); // abordarea din stanga
         pune(geo_.vColDreapta + 3, r, ':'); // abordarea din dreapta
     }
+
+    // --- Iarba in cele 4 colturi (in afara carosabilului) ---
+    // Umplem spatiile ramase din zonele care nu sunt drum, pentru un fundal
+    // colorat in jurul intersectiei. Pastram randul 0 (regula) si ultimul
+    // (bara de stare) curate.
+    for (int r = 1; r < L - 1; ++r) {
+        for (int c = 0; c < C; ++c) {
+            if (!esteAsfalt(r, c) && grila_[r][c] == ' ') {
+                grila_[r][c] = '.';
+            }
+        }
+    }
 }
 
 bool Harta::esteAsfalt(int linie, int coloana) const {
