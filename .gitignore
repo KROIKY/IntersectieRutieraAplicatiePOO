@@ -17,6 +17,7 @@ cmake_install.cmake
 # Editoare / IDE
 .vscode/
 .idea/
+.claude/
 *.swp
 *~
 
