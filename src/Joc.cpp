@@ -8,6 +8,7 @@
 #include "Masina.h"
 #include "Motocicleta.h"
 #include "Camion.h"
+#include "Meniu.h"
 
 #include <algorithm>
 #include <cmath>
@@ -202,8 +203,9 @@ void Joc::deseneazaStatus(const std::string& avertisment) {
 
     std::string status = " Scor: " + std::to_string(scor_) +
                          "   Vieti: " + std::to_string(vieti_) +
-                         "   Treceri: " + std::to_string(treceriReusite_) +
-                         "   [WASD/sageti] misca, P pauza, Q iesire";
+                         "   Intersectii: " + std::to_string(treceriReusite_) +
+                         "/" + std::to_string(tintaIntersectii_) +
+                         "   [WASD/sageti] misca, P pauza, Q meniu";
     if (!avertisment.empty()) status += "   " + avertisment;
 
     if (static_cast<int>(status.size()) > C) status.resize(C);
@@ -231,6 +233,43 @@ void Joc::schimbaRegula() {
 void Joc::ruleaza() {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
     ecran_.initializeaza();
+
+    while (true) {
+        if (!meniuPrincipal()) break;          // EXIT
+        int tinta = alegeDificultate();
+        if (tinta < 0) continue;               // inapoi la meniul principal
+        ruleazaJoc(tinta);                     // o partida efectiva
+    }
+
+    ecran_.restaureaza();
+}
+
+bool Joc::meniuPrincipal() {
+    Meniu m(ecran_, input_);
+    return m.alege("===  COD RUTIER  ===", {"PLAY", "EXIT"}) == 0;
+}
+
+int Joc::alegeDificultate() {
+    Meniu m(ecran_, input_);
+    int sel = m.alege("ALEGE DIFICULTATEA", {
+        "EASY   -   5 intersectii",
+        "NORMAL -  10 intersectii",
+        "HARD   -  20 intersectii"});
+    switch (sel) {
+        case 0:  return 5;
+        case 1:  return 10;
+        case 2:  return 20;
+        default: return -1;                    // Q/Esc = inapoi
+    }
+}
+
+void Joc::ruleazaJoc(int tintaIntersectii) {
+    // Reinitializam starea pentru o partida noua.
+    scor_ = 0; vieti_ = 3; indexRegula_ = 0; treceriReusite_ = 0;
+    tintaIntersectii_ = tintaIntersectii;
+    npcuri_.clear(); cadreSpawn_ = 0;
+    aIntratInBox_ = false; peContrasens_ = false;
+    eraOffRoad_ = false; tranzitieTimer_ = 0.0; timpStationar_ = 0.0;
 
     const int L = ecran_.linii();
     const int C = ecran_.coloane();
@@ -269,7 +308,7 @@ void Joc::ruleaza() {
 
         // ---- FAZA B: input ----
         Tasta t = input_.citeste();
-        if (t == Tasta::Iesire) break;
+        if (t == Tasta::Iesire) return; // Q in timpul jocului = inapoi la meniu
 
         // ---- Pauza de tranzitie intre niveluri (ca sa nu incalci instant
         //      regula urmatoare daca tii apasata acceleratia) ----
@@ -364,6 +403,13 @@ void Joc::ruleaza() {
                                   intersectie_->inDreaptaIntersectiei(*jucator_))) {
                 scor_ += 100;
                 ++treceriReusite_;
+                if (treceriReusite_ >= tintaIntersectii_) {
+                    for (auto& n : npcuri_) n.v->deseneaza(ecran_);
+                    jucator_->deseneaza(ecran_);
+                    afiseazaVictorie();
+                    asteaptaIesire();
+                    return; // partida castigata -> inapoi la meniu
+                }
                 schimbaRegula();
                 reseteazaJucator();
                 tranzitieTimer_ = 2.0; // pauza scurta inainte de nivelul urmator
@@ -421,8 +467,8 @@ void Joc::ruleaza() {
         usleep(16000);
     }
 
-    if (gameOver) asteaptaIesire();
-    ecran_.restaureaza();
+    if (gameOver) asteaptaIesire(); // ramane pe ecranul Game Over pana la Q
+    // Revenirea la meniu (si restaurarea terminalului) se face in ruleaza().
 }
 
 void Joc::afiseazaGameOver(const std::string& motiv) {
@@ -440,9 +486,31 @@ void Joc::afiseazaGameOver(const std::string& motiv) {
     centrat(r - 1, "             GAME OVER            ");
     centrat(r,     motiv);
     centrat(r + 1, "Scor final: " + std::to_string(scor_) +
-                   "   Treceri reusite: " + std::to_string(treceriReusite_));
-    centrat(r + 2, "Apasa Q sau Esc pentru iesire.");
+                   "   Intersectii trecute: " + std::to_string(treceriReusite_) +
+                   " / " + std::to_string(tintaIntersectii_));
+    centrat(r + 2, "Apasa Q sau Esc pentru a reveni la meniu.");
     centrat(r + 3, "==================================");
+    ecran_.actualizeaza();
+}
+
+void Joc::afiseazaVictorie() {
+    const int L = ecran_.linii();
+    const int C = ecran_.coloane();
+    const int r = L / 2;
+
+    auto centrat = [&](int linie, const std::string& text, const std::string& culoare) {
+        int col = (C - static_cast<int>(text.size())) / 2;
+        if (col < 0) col = 0;
+        ecran_.scrieLa(linie, col, culoare + text + "\033[0m");
+    };
+
+    centrat(r - 2, "##################################", "\033[1;92m");
+    centrat(r - 1, "            AI CASTIGAT!           ", "\033[1;92m");
+    centrat(r,     "Ai trecut toate cele " + std::to_string(tintaIntersectii_) +
+                   " intersectii!", "\033[1;97m");
+    centrat(r + 1, "Scor final: " + std::to_string(scor_), "\033[1;97m");
+    centrat(r + 2, "Apasa Q sau Esc pentru a reveni la meniu.", "\033[2;37m");
+    centrat(r + 3, "##################################", "\033[1;92m");
     ecran_.actualizeaza();
 }
 

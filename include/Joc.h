@@ -28,9 +28,15 @@ public:
     void ruleaza();
 
 private:
+    // Meniuri (stil old-school cu butoane dreptunghiulare).
+    bool meniuPrincipal();        // true = PLAY, false = EXIT
+    int  alegeDificultate();      // 5 / 10 / 20 intersectii, sau -1 = inapoi
+    void ruleazaJoc(int tintaIntersectii); // o partida efectiva
+
     void deseneazaStatus(const std::string& avertisment);
     bool esteOffRoad(const Pozitie& poz) const;
     void afiseazaGameOver(const std::string& motiv);
+    void afiseazaVictorie();
     void asteaptaIesire();
 
     void reseteazaJucator();                 // readuce masina la start (respawn)
@@ -67,6 +73,7 @@ private:
     int vieti_ = 3;
     int indexRegula_ = 0;
     int treceriReusite_ = 0;
+    int tintaIntersectii_ = 5;   // cate intersectii trebuie trecute pentru a castiga
 
     // Stare regula / intersectie
     bool eraSubIntersectie_ = true;

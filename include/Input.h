@@ -15,7 +15,8 @@ enum class Tasta {
     Stanga,
     Dreapta,
     Pauza,
-    Iesire
+    Iesire,
+    Confirma   // Enter sau Space (folosita in meniuri)
 };
 
 class Input {

@@ -38,8 +38,9 @@ Tasta Input::citeste() {
                 case 's': case 'S': rezultat = Tasta::Jos;     break;
                 case 'a': case 'A': rezultat = Tasta::Stanga;  break;
                 case 'd': case 'D': rezultat = Tasta::Dreapta; break;
-                case 'p': case 'P': rezultat = Tasta::Pauza;   break;
-                case 'q': case 'Q': rezultat = Tasta::Iesire;  break;
+                case 'p': case 'P': rezultat = Tasta::Pauza;    break;
+                case 'q': case 'Q': rezultat = Tasta::Iesire;   break;
+                case '\n': case '\r': case ' ': rezultat = Tasta::Confirma; break;
                 default: break;
             }
         }
