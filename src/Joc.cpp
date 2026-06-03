@@ -95,7 +95,6 @@ void Joc::spawnNpc() {
 
 void Joc::actualizeazaNpc() {
     const Geometrie& g = harta_->geometrie();
-    const bool rosuNpc = npcAreRosu();
 
     for (size_t i = 0; i < npcuri_.size(); ++i) {
         Npc& n = npcuri_[i];
@@ -111,18 +110,25 @@ void Joc::actualizeazaNpc() {
         if (d == Directie::Stanga) pNext.coloana--;
         else                       pNext.coloana++;
 
-        // 1) Oprire la semafor (rosu pentru NPC) exact la limita intersectiei.
-        bool opritDeSemafor = false;
-        if (rosuNpc) {
-            if (d == Directie::Dreapta && p.coloana + w - 1 == g.vColStanga - 1)
-                opritDeSemafor = true;
-            if (d == Directie::Stanga  && p.coloana == g.vColDreapta + 1)
-                opritDeSemafor = true;
+        // 1) Oprire la limita intersectiei: semafor rosu pentru NPC, sau cedarea
+        //    catre jucator la regula de prioritate de dreapta. Folosim o banda
+        //    de cateva celule la intrare, ca vehiculul sa nu "scape" peste linie.
+        bool opritLaIntersectie = false;
+        if (npcTrebuieSaStea(*n.v)) {
+            if (d == Directie::Dreapta) {
+                int front = p.coloana + w - 1;
+                if (front >= g.vColStanga - 1 && front <= g.vColStanga + 1)
+                    opritLaIntersectie = true;
+            } else { // Stanga
+                int front = p.coloana;
+                if (front <= g.vColDreapta + 1 && front >= g.vColDreapta - 1)
+                    opritLaIntersectie = true;
+            }
         }
 
         // 2) Pastrarea distantei: nu intra peste un alt NPC din fata.
         bool blocat = false;
-        if (!opritDeSemafor) {
+        if (!opritLaIntersectie) {
             for (size_t j = 0; j < npcuri_.size() && !blocat; ++j) {
                 if (j == i) continue;
                 blocat = boxSeSuprapune(pNext, w, h,
@@ -132,7 +138,7 @@ void Joc::actualizeazaNpc() {
             }
         }
 
-        if (!opritDeSemafor && !blocat) n.v->setPozitie(pNext);
+        if (!opritLaIntersectie && !blocat) n.v->setPozitie(pNext);
     }
 
     // Eliminam vehiculele care au iesit complet din ecran.
@@ -143,22 +149,42 @@ void Joc::actualizeazaNpc() {
     }), npcuri_.end());
 }
 
-bool Joc::npcAreRosu() const {
-    // Traficul NPC (transversal) are rosu cand semaforul jucatorului NU e rosu.
+bool Joc::jucatorEngageazaIntersectia() const {
+    const Geometrie& g = harta_->geometrie();
+    int cr = jucator_->centruLinie();
+    int cc = jucator_->centruColoana();
+    bool peVertical = (cc >= g.vColStanga && cc <= g.vColDreapta);
+    // In intersectie sau pe abordarea de jos, aproape de ea.
+    bool aproape = (cr >= g.hRowSus - 2 && cr <= g.hRowJos + 6);
+    return peVertical && aproape;
+}
+
+bool Joc::existaNpcDinDreapta() const {
+    // Vehicul venit din dreapta jucatorului = se deplaseaza spre stanga (Stanga),
+    // aflat in intersectie sau pe abordarea dreapta, aproape de ea.
+    const Geometrie& g = harta_->geometrie();
+    const int MARJA = 12;
+    for (const auto& n : npcuri_) {
+        if (n.v->directie() != Directie::Stanga) continue;
+        Pozitie p = n.v->pozitie();
+        int w = n.v->latime();
+        bool nuAtrecut  = (p.coloana + w - 1 >= g.vColStanga); // inca nu a trecut de box
+        bool eAproape   = (p.coloana <= g.vColDreapta + MARJA); // e in/langa box pe dreapta
+        if (nuAtrecut && eAproape) return true;
+    }
+    return false;
+}
+
+bool Joc::npcTrebuieSaStea(const Vehicul& v) const {
+    // Semafor: NPC are rosu cand jucatorul NU are rosu.
     if (auto* sem = dynamic_cast<RegulaSemafor*>(&intersectie_->regula())) {
         return sem->culoare() != RegulaSemafor::Culoare::Rosu;
     }
-    return false; // alte reguli: NPC-urile nu se opresc la semafor
-}
-
-bool Joc::exista_npc_in_intersectie() const {
-    const Geometrie& g = harta_->geometrie();
-    for (const auto& n : npcuri_) {
-        Pozitie p = n.v->pozitie();
-        int h = n.v->inaltime(), w = n.v->latime();
-        bool peLinii  = !(p.linie + h - 1 < g.hRowSus    || p.linie   > g.hRowJos);
-        bool peColoane = !(p.coloana + w - 1 < g.vColStanga || p.coloana > g.vColDreapta);
-        if (peLinii && peColoane) return true;
+    // Prioritate de dreapta: NPC venit din STANGA jucatorului (merge spre dreapta)
+    // ii cedeaza jucatorului cand acesta este la/aproape de intersectie.
+    if (dynamic_cast<RegulaPrioritateDreapta*>(&intersectie_->regula())) {
+        if (v.directie() == Directie::Dreapta) return jucatorEngageazaIntersectia();
+        return false; // NPC din dreapta jucatorului are prioritate, nu se opreste
     }
     return false;
 }
@@ -308,9 +334,10 @@ void Joc::ruleaza() {
 
             intersectie_->actualizeaza(DT);
 
-            // Prioritate de dreapta: liber doar daca nu e niciun NPC in intersectie.
+            // Prioritate de dreapta: jucatorul cedeaza DOAR vehiculelor venite
+            // din dreapta lui; e liber daca nu vine niciunul din dreapta.
             if (auto* rp = dynamic_cast<RegulaPrioritateDreapta*>(&intersectie_->regula())) {
-                rp->seteazaLiber(!exista_npc_in_intersectie());
+                rp->seteazaLiber(!existaNpcDinDreapta());
             }
 
             // Cronometrarea opririi in zona de STOP.

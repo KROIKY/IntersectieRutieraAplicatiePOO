@@ -45,9 +45,15 @@ private:
     };
     void spawnNpc();                         // genereaza un vehicul NPC
     void actualizeazaNpc();                  // muta NPC-urile, sterge cele iesite
-    bool exista_npc_in_intersectie() const;  // pentru prioritatea de dreapta
     bool coliziuneCuNpc() const;             // jucatorul a lovit un NPC?
-    bool npcAreRosu() const;                 // semaforul e rosu pentru trafic NPC?
+
+    // Decide daca un vehicul NPC trebuie sa se opreasca la limita intersectiei
+    // (rosu la semafor, sau cedeaza jucatorului la prioritate de dreapta).
+    bool npcTrebuieSaStea(const Vehicul& v) const;
+    // Jucatorul este la/aproape de intersectie (venind de jos pe verticala)?
+    bool jucatorEngageazaIntersectia() const;
+    // Exista un NPC venit din DREAPTA jucatorului (caruia trebuie sa-i cedeze)?
+    bool existaNpcDinDreapta() const;
 
     Ecran ecran_;
     Input input_;
