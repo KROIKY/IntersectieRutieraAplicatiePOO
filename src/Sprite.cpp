@@ -72,9 +72,7 @@ const std::vector<std::string>& camionOrizontal() {
 
 const std::vector<std::string>& motocicletaOrizontala() {
     static const std::vector<std::string> s = {
-        "o ",
-        "@>",
-        "o "
+        "o @ o"
     };
     return s;
 }

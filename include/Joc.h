@@ -47,6 +47,7 @@ private:
     void actualizeazaNpc();                  // muta NPC-urile, sterge cele iesite
     bool exista_npc_in_intersectie() const;  // pentru prioritatea de dreapta
     bool coliziuneCuNpc() const;             // jucatorul a lovit un NPC?
+    bool npcAreRosu() const;                 // semaforul e rosu pentru trafic NPC?
 
     Ecran ecran_;
     Input input_;

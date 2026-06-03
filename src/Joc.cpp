@@ -19,9 +19,19 @@
 namespace {
     const double SECUNDE_CONTRASENS = 3.0; // limita pe contrasens
     const double DT = 0.016;               // pas de timp aproximativ (60 FPS)
-    const int    NR_REGULI = 3;
+    const int    NR_REGULI = 2; // semafor + prioritate de dreapta (STOP eliminat)
     const int    MAX_NPC = 3;
     const int    CADRE_INTRE_SPAWN = 80;   // ~1.3 secunde
+
+    // Suprapunere de dreptunghiuri (cu o distanta 'gap' pe coloane) - folosita
+    // pentru a pastra distanta intre vehiculele NPC din aceeasi banda.
+    bool boxSeSuprapune(const Pozitie& pa, int wa, int ha,
+                        const Pozitie& pb, int wb, int hb, int gap) {
+        bool peLinii   = !(pa.linie + ha - 1 < pb.linie || pa.linie > pb.linie + hb - 1);
+        bool peColoane = !(pa.coloana + wa - 1 + gap < pb.coloana ||
+                           pa.coloana > pb.coloana + wb - 1 + gap);
+        return peLinii && peColoane;
+    }
 
     // Adevarat daca vreo celula ocupata de 'a' coincide cu o celula a lui 'b'.
     bool celuleSeSuprapun(const Vehicul& a, const Vehicul& b) {
@@ -38,9 +48,9 @@ namespace {
 }
 
 std::unique_ptr<RegulaCirculatie> Joc::creeazaRegula(int index) const {
+    // Regula STOP a fost eliminata la cererea utilizatorului.
     switch (index % NR_REGULI) {
         case 0:  return std::make_unique<RegulaSemafor>();
-        case 1:  return std::make_unique<RegulaStop>();
         default: return std::make_unique<RegulaPrioritateDreapta>();
     }
 }
@@ -85,21 +95,60 @@ void Joc::spawnNpc() {
 
 void Joc::actualizeazaNpc() {
     const Geometrie& g = harta_->geometrie();
-    for (auto& n : npcuri_) {
-        if (++n.contor >= n.interval) {
-            n.contor = 0;
-            Pozitie p = n.v->pozitie();
-            if (n.v->directie() == Directie::Stanga) p.coloana--;
-            else                                     p.coloana++;
-            n.v->setPozitie(p);
+    const bool rosuNpc = npcAreRosu();
+
+    for (size_t i = 0; i < npcuri_.size(); ++i) {
+        Npc& n = npcuri_[i];
+        if (++n.contor < n.interval) continue;
+        n.contor = 0;
+
+        Pozitie p = n.v->pozitie();
+        int w = n.v->latime();
+        int h = n.v->inaltime();
+        Directie d = n.v->directie();
+
+        Pozitie pNext = p;
+        if (d == Directie::Stanga) pNext.coloana--;
+        else                       pNext.coloana++;
+
+        // 1) Oprire la semafor (rosu pentru NPC) exact la limita intersectiei.
+        bool opritDeSemafor = false;
+        if (rosuNpc) {
+            if (d == Directie::Dreapta && p.coloana + w - 1 == g.vColStanga - 1)
+                opritDeSemafor = true;
+            if (d == Directie::Stanga  && p.coloana == g.vColDreapta + 1)
+                opritDeSemafor = true;
         }
+
+        // 2) Pastrarea distantei: nu intra peste un alt NPC din fata.
+        bool blocat = false;
+        if (!opritDeSemafor) {
+            for (size_t j = 0; j < npcuri_.size() && !blocat; ++j) {
+                if (j == i) continue;
+                blocat = boxSeSuprapune(pNext, w, h,
+                                        npcuri_[j].v->pozitie(),
+                                        npcuri_[j].v->latime(),
+                                        npcuri_[j].v->inaltime(), 1);
+            }
+        }
+
+        if (!opritDeSemafor && !blocat) n.v->setPozitie(pNext);
     }
+
     // Eliminam vehiculele care au iesit complet din ecran.
     npcuri_.erase(std::remove_if(npcuri_.begin(), npcuri_.end(), [&](const Npc& n) {
         Pozitie p = n.v->pozitie();
         if (n.v->directie() == Directie::Stanga) return p.coloana + n.v->latime() < 0;
         return p.coloana > g.coloane;
     }), npcuri_.end());
+}
+
+bool Joc::npcAreRosu() const {
+    // Traficul NPC (transversal) are rosu cand semaforul jucatorului NU e rosu.
+    if (auto* sem = dynamic_cast<RegulaSemafor*>(&intersectie_->regula())) {
+        return sem->culoare() != RegulaSemafor::Culoare::Rosu;
+    }
+    return false; // alte reguli: NPC-urile nu se opresc la semafor
 }
 
 bool Joc::exista_npc_in_intersectie() const {
