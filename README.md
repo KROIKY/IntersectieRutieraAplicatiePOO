@@ -93,11 +93,11 @@ make
 - [x] **Etapa 2** — Ierarhia `Vehicul` + intersecție 2 benzi + mișcare pe bandă (contrasens, vieți)
 - [x] **Etapa 3** — Intersecții și reguli de circulație polimorfe (STOP, semafor, prioritate) + scor
 - [x] **Etapa 4** — Vehicule NPC (trafic transversal) + coliziuni → game over
-- [ ] **Etapa 5** — Logging și excepții
+- [x] **Etapa 5** — Logging și excepții
 - [ ] **Etapa 6** — Niveluri și extinderea hărții
-- [ ] **Etapa 7** — Teste unitare
+- [x] **Etapa 7** — Teste unitare
 - [ ] **Etapa 8** — Facultativ (Observer, pauză/accelerare, export CSV)
-- [ ] **Etapa 9** — Documentație finală
+- [x] **Etapa 9** — Documentație finală
 
 ## Concepte POO folosite
 
