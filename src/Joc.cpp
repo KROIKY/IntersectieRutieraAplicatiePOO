@@ -281,6 +281,10 @@ void Joc::ruleazaJoc(int tintaIntersectii) {
     intersectie_ = std::make_unique<Intersectie>(harta_->geometrie(),
                                                  creeazaRegula(indexRegula_));
 
+    jurnal_.eveniment("Partida noua: tinta=" + std::to_string(tintaIntersectii) +
+                      " intersectii; nivelul 1, regula=" +
+                      intersectie_->regula().nume());
+
     const Geometrie& g = harta_->geometrie();
     startJucator_ = Pozitie(L - 4, g.midC + 3);
     jucator_ = std::make_unique<MasinaJucator>(startJucator_, Directie::Sus);
@@ -394,6 +398,9 @@ void Joc::ruleazaJoc(int tintaIntersectii) {
                     afiseazaGameOver(intersectie_->regula().motivIncalcare());
                     gameOver = true; break;
                 }
+                jurnal_.eveniment("Intrare in intersectie permisa (regula=" +
+                                  intersectie_->regula().nume() + ", stare=" +
+                                  intersectie_->regula().textStare() + ")");
                 aIntratInBox_ = true;
             }
 
@@ -403,6 +410,10 @@ void Joc::ruleazaJoc(int tintaIntersectii) {
                                   intersectie_->inDreaptaIntersectiei(*jucator_))) {
                 scor_ += 100;
                 ++treceriReusite_;
+                jurnal_.eveniment("Iesire din intersectie: trecere reusita +100 (scor=" +
+                                  std::to_string(scor_) + ", total=" +
+                                  std::to_string(treceriReusite_) + "/" +
+                                  std::to_string(tintaIntersectii_) + ")");
                 if (treceriReusite_ >= tintaIntersectii_) {
                     for (auto& n : npcuri_) n.v->deseneaza(ecran_);
                     jucator_->deseneaza(ecran_);
@@ -412,6 +423,8 @@ void Joc::ruleazaJoc(int tintaIntersectii) {
                 }
                 schimbaRegula();
                 reseteazaJucator();
+                jurnal_.eveniment("Nivel nou " + std::to_string(treceriReusite_ + 1) +
+                                  ": regula=" + intersectie_->regula().nume());
                 tranzitieTimer_ = 2.0; // pauza scurta inainte de nivelul urmator
             }
             eraSubIntersectie_ = intersectie_->subIntersectie(*jucator_);
@@ -472,6 +485,10 @@ void Joc::ruleazaJoc(int tintaIntersectii) {
 }
 
 void Joc::afiseazaGameOver(const std::string& motiv) {
+    jurnal_.eveniment("GAME OVER: " + motiv + " (scor=" + std::to_string(scor_) +
+                      ", intersectii=" + std::to_string(treceriReusite_) + "/" +
+                      std::to_string(tintaIntersectii_) + ")");
+
     const int L = ecran_.linii();
     const int C = ecran_.coloane();
     const int r = L / 2;
@@ -494,6 +511,9 @@ void Joc::afiseazaGameOver(const std::string& motiv) {
 }
 
 void Joc::afiseazaVictorie() {
+    jurnal_.eveniment("VICTORIE: toate cele " + std::to_string(tintaIntersectii_) +
+                      " intersectii trecute (scor final=" + std::to_string(scor_) + ")");
+
     const int L = ecran_.linii();
     const int C = ecran_.coloane();
     const int r = L / 2;

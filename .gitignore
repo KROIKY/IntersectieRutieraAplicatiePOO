@@ -21,6 +21,9 @@ cmake_install.cmake
 *.swp
 *~
 
+# Fisiere temporare Word (lock files generate cand documentul e deschis)
+~$*.docx
+
 # Sisteme de operare
 .DS_Store
 Thumbs.db

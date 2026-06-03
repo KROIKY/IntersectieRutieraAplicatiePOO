@@ -13,6 +13,7 @@
 #include "Input.h"
 #include "Harta.h"
 #include "Intersectie.h"
+#include "Logger.h"
 #include "MasinaJucator.h"
 #include "RegulaCirculatie.h"
 #include "Vehicul.h"
@@ -63,6 +64,7 @@ private:
 
     Ecran ecran_;
     Input input_;
+    Logger jurnal_{"cod_rutier.log"}; // jurnal de evenimente (intrare/iesire, coliziuni)
     std::unique_ptr<Harta> harta_;
     std::unique_ptr<Intersectie> intersectie_;
     std::unique_ptr<MasinaJucator> jucator_;
