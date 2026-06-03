@@ -1,0 +1,73 @@
+Sunt formulate teme de proiect distincte, fiecare destinată unei grupe de studenți. 
+	Fiecare temă se concentrează pe concepte cheie de Programare Orientată pe Obiecte (POO) în C++,
+	cum ar fi clase, obiecte, moștenire, polimorfism, encapsulare, șabloane (STL) și excepții. 
+	Pentru a facilita corectarea, am structurat cerințele astfel:
+
+	Cerințe obligatorii: Elemente de bază care trebuie implementate pentru o notă minimă 
+	(ex: funcționalitate core, cod curat, utilizare Git).
+	Cerințe facultative: Extensii opționale pentru puncte bonus (ex: funcționalități avansate, optimizări).
+	Evaluare practică: Verifică atingerea temei (rulare corectă), codul scris (stil, comentarii, modularitate),
+	utilizarea Git (commit-uri regulate, 	branch-uri, README.md cu instrucțiuni de build și run).
+	Evaluare teoretică: Documentație furnizată (un fișier PDF sau Markdown cu descrierea claselor, 
+	diagrame UML simple, explicații ale conceptelor POO folosite, posibile îmbunătățiri).
+
+	Toate proiectele trebuie să fie compilabile cu un compiler standard C++ (ex: g++), să folosească 
+	makefile sau CMake pentru build, și să includă teste unitare simple (fără biblioteci externe complexe). 
+	Studenții trebuie să predea un repository Git (public sau partajat) cu codul și documentația.
+		
+	GIT:
+		https://classroom.github.com/classrooms/86118538-usmro-poo
+	
+	1. Pași pentru studenții unei grupe la cele 3 intâlniri
+		Presupunând că întâlnirile sunt periodice (ex: săptămânale), pașii sunt generali și 
+		aplicabili oricărei grupe. 
+		Fiecare întâlnire include discuții, revizuiri și planificare.
+
+		Întâlnire 1: Analiza temei (înțelegere cerințe). Studenții definesc clasele de bază și 
+					 diagrama UML simplă. 
+				     Livrabil: Schiță inițială în documentație (PDF/MD).
+		             Implementare cerințe obligatorii de bază (clase, moștenire). Commit-uri 
+					 inițiale pe Git. Discuție erori comune. 
+					 Livrabil: Cod parțial rulabil.
+		Întâlnire 2: Adăugare polimorfism și encapsulare. Teste unitare simple. Revizuire cod 
+					 (stil, comentarii). 
+					 Livrabil: Branch "develop" cu progres.
+		             Integrare funcționalități (ex: interfață consolă). Implementare excepții 
+					 sau șabloane (dacă facultative). 
+					 Livrabil: Versiune beta rulabilă.
+		Întâlnire 3: Finalizare cerințe facultative. Actualizare documentație (explicații POO). 
+					 Testare completă. 
+					 Livrabil: README complet, commit-uri finale.
+		             Prezentare proiect (demo live). Discuție îmbunătățiri. 
+					 Livrabil: Repository final, documentație completă.
+
+	2. Flux pentru Predarea Proiectelor (cu Evaluare Automată)
+		Pentru a permite evaluare automată, propun un flux bazat pe GitHub (sau GitLab) 
+		cu integrare CI/CD (Continuous Integration/Continuous Deployment). 
+		Studenții predau un link la repository-ul lor public/partajat.
+
+		Pasul 1: Pregătire de către student: Creați un repository GitHub cu structură standard:
+			src/ pentru cod C++.
+			docs/ pentru documentație (PDF/MD numit documentatie.pdf).
+			tests/ pentru teste unitare (fișiere C++ simple).
+			Makefile sau CMakeLists.txt pentru build.
+			README.md cu instrucțiuni: g++ -o app main.cpp și exemple de rulare.
+
+		Pasul 2: Predare: Studentul trimite link-ul repository-ului via email/formular 
+				 (ex: Google Form). Deadline strict.
+Temă 3121A: Simulare de trafic rutier
+		Descriere
+			Simulează vehicule care se deplasează pe o rețea de străzi, respectând reguli 
+			simple de circulație.
+		Cerințe obligatorii
+			Clase abstracte: Vehicul → Masina, Motocicleta, Camion
+			Polimorfism: viteze maxime diferite, comportament la intersecții
+			Compoziție: Intersectie, Strada, ReteaRutiera
+			Evenimente logate: intrare/ieșire din intersecție, coliziune
+			Teste unitare pentru logica deplasării și validării traseului
+			Format cod + Git + logging
+			
+		Cerințe facultative
+			Simulare în timp real cu pauză/accelerare
+			Pattern Observer pentru notificarea evenimentelor
+			Export statistică în CSV

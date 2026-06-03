@@ -1,0 +1,25 @@
+# Fisiere obiect si binare compilate
+*.o
+*.obj
+cod_rutier
+build/
+
+# Fisiere generate la rulare
+*.log
+events.log
+statistici.csv
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# Editoare / IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Sisteme de operare
+.DS_Store
+Thumbs.db

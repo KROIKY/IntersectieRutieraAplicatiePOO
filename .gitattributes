@@ -1,0 +1,8 @@
+# Normalizeaza terminatiile de linie la LF pentru fisierele text.
+# Esential: proiectul se compileaza si ruleaza pe Linux (Ubuntu), unde
+# Makefile-ul si scripturile necesita LF, nu CRLF.
+
+* text=auto eol=lf
+
+# Fisiere binare (nu se modifica terminatiile de linie).
+*.png binary
