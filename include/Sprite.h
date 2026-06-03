@@ -27,6 +27,11 @@ const std::vector<std::string>& camion();
 // Motocicleta NPC:     o / @ / o
 const std::vector<std::string>& motocicleta();
 
+// --- Variante orizontale (pentru vehiculele care circula stanga/dreapta) ---
+const std::vector<std::string>& masinaOrizontala();
+const std::vector<std::string>& camionOrizontal();
+const std::vector<std::string>& motocicletaOrizontala();
+
 } // namespace sprite
 
 #endif // SPRITE_H

@@ -92,7 +92,7 @@ make
 - [x] **Etapa 1** — Motor terminal (ecran ANSI + input WASD/săgeți)
 - [x] **Etapa 2** — Ierarhia `Vehicul` + intersecție 2 benzi + mișcare pe bandă (contrasens, vieți)
 - [x] **Etapa 3** — Intersecții și reguli de circulație polimorfe (STOP, semafor, prioritate) + scor
-- [ ] **Etapa 4** — Rețea rutieră, vehicule NPC și coliziuni
+- [x] **Etapa 4** — Vehicule NPC (trafic transversal) + coliziuni → game over
 - [ ] **Etapa 5** — Logging și excepții
 - [ ] **Etapa 6** — Niveluri și extinderea hărții
 - [ ] **Etapa 7** — Teste unitare

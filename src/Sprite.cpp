@@ -43,4 +43,31 @@ const std::vector<std::string>& motocicleta() {
     return s;
 }
 
+const std::vector<std::string>& masinaOrizontala() {
+    static const std::vector<std::string> s = {
+        " oo ",
+        "[XX]",
+        " oo "
+    };
+    return s;
+}
+
+const std::vector<std::string>& camionOrizontal() {
+    static const std::vector<std::string> s = {
+        " oooo ",
+        "[XXXX]",
+        " oooo "
+    };
+    return s;
+}
+
+const std::vector<std::string>& motocicletaOrizontala() {
+    static const std::vector<std::string> s = {
+        "o ",
+        "@>",
+        "o "
+    };
+    return s;
+}
+
 } // namespace sprite

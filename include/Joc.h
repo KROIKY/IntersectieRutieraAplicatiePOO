@@ -15,10 +15,12 @@
 #include "Intersectie.h"
 #include "MasinaJucator.h"
 #include "RegulaCirculatie.h"
+#include "Vehicul.h"
 
 #include <chrono>
 #include <memory>
 #include <string>
+#include <vector>
 
 class Joc {
 public:
@@ -34,6 +36,17 @@ private:
     void reseteazaJucator();                 // readuce masina la start (respawn)
     void schimbaRegula();                    // trece la urmatoarea regula
     std::unique_ptr<RegulaCirculatie> creeazaRegula(int index) const;
+
+    // --- Trafic NPC (Etapa 4) ---
+    struct Npc {
+        std::unique_ptr<Vehicul> v;
+        int interval;     // cate cadre intre doua mutari
+        int contor = 0;
+    };
+    void spawnNpc();                         // genereaza un vehicul NPC
+    void actualizeazaNpc();                  // muta NPC-urile, sterge cele iesite
+    bool exista_npc_in_intersectie() const;  // pentru prioritatea de dreapta
+    bool coliziuneCuNpc() const;             // jucatorul a lovit un NPC?
 
     Ecran ecran_;
     Input input_;
@@ -62,6 +75,10 @@ private:
     // Mesaj temporar (ex: "Intersectie trecuta! +100")
     std::string mesaj_;
     double mesajTimer_ = 0.0;
+
+    // Trafic NPC
+    std::vector<Npc> npcuri_;
+    int cadreSpawn_ = 0;
 };
 
 #endif // JOC_H

@@ -15,7 +15,8 @@ public:
     int vitezaMaxima() const override { return 3; }
     std::string tip() const override { return "Masina"; }
     const std::vector<std::string>& sprite() const override {
-        return sprite::masina();
+        bool orizontal = (dir_ == Directie::Stanga || dir_ == Directie::Dreapta);
+        return orizontal ? sprite::masinaOrizontala() : sprite::masina();
     }
 };
 
