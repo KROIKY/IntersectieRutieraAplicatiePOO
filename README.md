@@ -90,7 +90,7 @@ make
 
 - [x] **Etapa 0** — Schelet proiect (structură, build, README)
 - [x] **Etapa 1** — Motor terminal (ecran ANSI + input WASD/săgeți)
-- [ ] **Etapa 2** — Ierarhia `Vehicul` (Mașina, Motocicleta, Camion)
+- [x] **Etapa 2** — Ierarhia `Vehicul` + intersecție 2 benzi + mișcare pe bandă (contrasens, vieți)
 - [ ] **Etapa 3** — Intersecții și reguli de circulație (polimorfism)
 - [ ] **Etapa 4** — Rețea rutieră, vehicule NPC și coliziuni
 - [ ] **Etapa 5** — Logging și excepții
