@@ -89,7 +89,7 @@ make
 ## Etape de dezvoltare (commit-uri)
 
 - [x] **Etapa 0** — Schelet proiect (structură, build, README)
-- [ ] **Etapa 1** — Motor terminal (ecran ANSI + input WASD/săgeți)
+- [x] **Etapa 1** — Motor terminal (ecran ANSI + input WASD/săgeți)
 - [ ] **Etapa 2** — Ierarhia `Vehicul` (Mașina, Motocicleta, Camion)
 - [ ] **Etapa 3** — Intersecții și reguli de circulație (polimorfism)
 - [ ] **Etapa 4** — Rețea rutieră, vehicule NPC și coliziuni
