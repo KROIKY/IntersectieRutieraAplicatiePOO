@@ -76,6 +76,9 @@ private:
     std::string mesaj_;
     double mesajTimer_ = 0.0;
 
+    // Pauza intre niveluri (ca jucatorul sa nu incalce instant regula urmatoare)
+    double tranzitieTimer_ = 0.0;
+
     // Trafic NPC
     std::vector<Npc> npcuri_;
     int cadreSpawn_ = 0;

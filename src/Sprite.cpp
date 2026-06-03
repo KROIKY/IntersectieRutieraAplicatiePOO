@@ -14,6 +14,15 @@ const std::vector<std::string>& masinaJucator() {
     return s;
 }
 
+const std::vector<std::string>& masinaJucatorOrizontala() {
+    static const std::vector<std::string> s = {
+        "e  e",
+        "@@@@",
+        "e  e"
+    };
+    return s;
+}
+
 const std::vector<std::string>& masina() {
     static const std::vector<std::string> s = {
         "0XX0",

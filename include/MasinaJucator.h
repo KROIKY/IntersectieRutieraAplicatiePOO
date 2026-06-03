@@ -17,7 +17,8 @@ public:
 
     std::string tip() const override { return "Masina (jucator)"; }
     const std::vector<std::string>& sprite() const override {
-        return sprite::masinaJucator();
+        bool orizontal = (dir_ == Directie::Stanga || dir_ == Directie::Dreapta);
+        return orizontal ? sprite::masinaJucatorOrizontala() : sprite::masinaJucator();
     }
 };
 

@@ -71,6 +71,18 @@ void Harta::construieste() {
             pune(geo_.midR, c, '-');
         }
     }
+
+    // --- Linii de STOP pe abordarile verticale (sus si jos) ---
+    // Marcheaza clar locul unde trebuie sa opresti inainte de intersectie.
+    for (int c = geo_.vColStanga; c <= geo_.vColDreapta; ++c) {
+        pune(geo_.hRowJos + 2, c, '=');  // abordarea de jos (sensul jucatorului)
+        pune(geo_.hRowSus - 2, c, '=');  // abordarea de sus
+    }
+    // --- Linii de STOP pe abordarile orizontale (stanga si dreapta) ---
+    for (int r = geo_.hRowSus; r <= geo_.hRowJos; ++r) {
+        pune(geo_.vColStanga - 3, r, ':'); // abordarea din stanga
+        pune(geo_.vColDreapta + 3, r, ':'); // abordarea din dreapta
+    }
 }
 
 bool Harta::esteAsfalt(int linie, int coloana) const {

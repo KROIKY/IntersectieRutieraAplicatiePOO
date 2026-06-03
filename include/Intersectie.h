@@ -34,6 +34,8 @@ public:
     bool subIntersectie(const Vehicul& v) const;
     bool inBox(const Vehicul& v) const;
     bool deasupraIntersectiei(const Vehicul& v) const;
+    bool inStangaIntersectiei(const Vehicul& v) const;  // a iesit pe bratul stang
+    bool inDreaptaIntersectiei(const Vehicul& v) const; // a iesit pe bratul drept
 
 private:
     Geometrie geo_;

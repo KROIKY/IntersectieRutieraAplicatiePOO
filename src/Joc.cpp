@@ -194,20 +194,48 @@ void Joc::ruleaza() {
 
         // ---- FAZA B: input ----
         Tasta t = input_.citeste();
-        bool s_a_miscat = false;
+        if (t == Tasta::Iesire) break;
 
-        if (t == Tasta::Iesire) {
-            break;
-        } else if (t == Tasta::Pauza) {
+        // ---- Pauza de tranzitie intre niveluri (ca sa nu incalci instant
+        //      regula urmatoare daca tii apasata acceleratia) ----
+        if (tranzitieTimer_ > 0.0) {
+            tranzitieTimer_ -= DT;
+            bool gata = (tranzitieTimer_ <= 0.0);
+            if (gata) ecran_.deseneazaFundal(); // curata banner-ul de pe fundal
+            for (auto& n : npcuri_) n.v->deseneaza(ecran_);
+            jucator_->deseneaza(ecran_);
+            intersectie_->deseneaza(ecran_);
+            if (!gata) {
+                int nivel = treceriReusite_ + 1;
+                auto centrat = [&](int linie, const std::string& txt) {
+                    int col = (C - static_cast<int>(txt.size())) / 2;
+                    if (col < 0) col = 0;
+                    ecran_.scrieLa(linie, col, txt);
+                };
+                centrat(L / 2 - 1, "==================================");
+                centrat(L / 2,     "  NIVELUL " + std::to_string(nivel) +
+                                   "   -   Regula: " + intersectie_->regula().nume() + "  ");
+                centrat(L / 2 + 1, "==================================");
+                deseneazaStatus("Pregateste-te...");
+            } else {
+                deseneazaStatus("");
+            }
+            ecran_.actualizeaza();
+            usleep(16000);
+            continue;
+        }
+
+        bool s_a_miscat = false;
+        if (t == Tasta::Pauza) {
             pauza = !pauza;
         } else if (!pauza && t != Tasta::Niciuna) {
             Pozitie nou  = jucator_->pozitie();
             Directie dir = jucator_->directie();
             switch (t) {
-                case Tasta::Sus:     nou.linie--;   dir = Directie::Sus; break;
-                case Tasta::Jos:     nou.linie++;   dir = Directie::Jos; break;
-                case Tasta::Stanga:  nou.coloana--;                      break;
-                case Tasta::Dreapta: nou.coloana++;                      break;
+                case Tasta::Sus:     nou.linie--;   dir = Directie::Sus;     break;
+                case Tasta::Jos:     nou.linie++;   dir = Directie::Jos;     break;
+                case Tasta::Stanga:  nou.coloana--; dir = Directie::Stanga;  break;
+                case Tasta::Dreapta: nou.coloana++; dir = Directie::Dreapta; break;
                 default: break;
             }
             if (nou.linie < minLinie) nou.linie = minLinie;
@@ -254,14 +282,15 @@ void Joc::ruleaza() {
                 aIntratInBox_ = true;
             }
 
-            // Trecere reusita -> scor, regula noua, respawn.
-            if (aIntratInBox_ && intersectie_->deasupraIntersectiei(*jucator_)) {
+            // Trecere reusita -> a iesit prin ORICARE brat (sus / stanga / dreapta).
+            if (aIntratInBox_ && (intersectie_->deasupraIntersectiei(*jucator_) ||
+                                  intersectie_->inStangaIntersectiei(*jucator_) ||
+                                  intersectie_->inDreaptaIntersectiei(*jucator_))) {
                 scor_ += 100;
                 ++treceriReusite_;
-                mesaj_ = "Intersectie trecuta corect! +100";
-                mesajTimer_ = 1.5;
                 schimbaRegula();
                 reseteazaJucator();
+                tranzitieTimer_ = 2.0; // pauza scurta inainte de nivelul urmator
             }
             eraSubIntersectie_ = intersectie_->subIntersectie(*jucator_);
 
@@ -300,11 +329,6 @@ void Joc::ruleaza() {
             } else {
                 peContrasens_ = false;
                 if (offAcum) avert = "Atentie: in afara carosabilului!";
-            }
-
-            if (mesajTimer_ > 0.0) {
-                mesajTimer_ -= DT;
-                if (avert.empty()) avert = mesaj_;
             }
         } else {
             avert = "-- PAUZA --";

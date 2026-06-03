@@ -9,7 +9,7 @@ Intersectie::Intersectie(const Geometrie& geo, std::unique_ptr<RegulaCirculatie>
     : geo_(geo), regula_(std::move(regula)) {}
 
 void Intersectie::deseneaza(Ecran& ecran) const {
-    // Construim textul "REGULA: <nume>   [<stare>]" cu starea colorata ANSI.
+    // 1) Bara de sus: "REGULA: <nume>   [<stare>]" cu starea colorata ANSI.
     std::string prefix = " REGULA: " + regula_->nume() + "   [";
     std::string stare  = regula_->textStare();
     std::string sufix  = "]";
@@ -19,8 +19,16 @@ void Intersectie::deseneaza(Ecran& ecran) const {
     std::string padding(vizibil < latimeCamp ? latimeCamp - vizibil : 0, ' ');
 
     std::string colorat = "\033[1;" + regula_->codCuloare() + "m" + stare + "\033[0m";
-
     ecran.scrieLa(0, 1, prefix + colorat + sufix + padding);
+
+    // 2) Semn/semafor vizibil chiar langa intersectie, pe abordarea de jos.
+    //    Pentru semafor afiseaza culoarea curenta (se vede cum cicleaza).
+    int linieSemn = geo_.hRowJos + 2;
+    int colSemn   = geo_.vColDreapta + 5;
+    std::string semn = "<" + regula_->textStare() + ">";
+    std::string semnColorat = "\033[1;" + regula_->codCuloare() + "m" + semn + "\033[0m";
+    ecran.scrieLa(linieSemn, colSemn, "          ");      // sterge semnul vechi
+    ecran.scrieLa(linieSemn, colSemn, semnColorat);
 }
 
 bool Intersectie::inZonaStop(const Vehicul& v) const {
@@ -44,4 +52,12 @@ bool Intersectie::inBox(const Vehicul& v) const {
 
 bool Intersectie::deasupraIntersectiei(const Vehicul& v) const {
     return v.centruLinie() < geo_.hRowSus;
+}
+
+bool Intersectie::inStangaIntersectiei(const Vehicul& v) const {
+    return v.centruColoana() < geo_.vColStanga;
+}
+
+bool Intersectie::inDreaptaIntersectiei(const Vehicul& v) const {
+    return v.centruColoana() > geo_.vColDreapta;
 }

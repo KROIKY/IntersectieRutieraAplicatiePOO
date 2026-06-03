@@ -15,8 +15,11 @@
 
 namespace sprite {
 
-// Masina jucatorului:  e@@e / @@ / e@@e
+// Masina jucatorului (vertical):  e@@e / @@ / e@@e
 const std::vector<std::string>& masinaJucator();
+
+// Masina jucatorului (orizontal, pentru deplasare stanga/dreapta).
+const std::vector<std::string>& masinaJucatorOrizontala();
 
 // Masina NPC:          0XX0 / XX / 0XX0
 const std::vector<std::string>& masina();
